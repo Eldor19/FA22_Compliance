@@ -14,8 +14,9 @@ indicator = indicator[compliance<1e3]
 compliance = compliance[compliance<1e3]
 
 #compliance = (compliance - mu)/std
-compliance = compliance / torch.max(compliance) * 10
-indicator = indicator*2 - 1
+# Rescaling
+compliance = compliance / torch.max(compliance) * 10 # was macht dieses rescaling?
+indicator = indicator*2 - 1 # rescale from 0 1 to -1 1
 
 def initWeights(m):
     """Initialize weights of neural network with xavier initialization."""
@@ -85,12 +86,14 @@ model = NN()
 model.apply(initWeights)
 
 lr = 1e-4
-epochs = 500
+epochs = 10
 clip = 2
 batches = 10
 batchsize = 1
 
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+cost_history = []
+cost_batches = np.zeros((batches))
 
 
 for epoch in range(epochs):
@@ -103,18 +106,25 @@ for epoch in range(epochs):
         optimizer.zero_grad()
         cost.backward()
         optimizer.step()
+        cost_batches[batch] = cost.detach().numpy()
+        
+    cost_epoch = np.mean(cost_batches)
+    cost_history.append(cost_epoch)
+        
+        
+    
     
     if epoch % 10 == 0:
-        print("prediction")
-        print(compliancePrediction)
-        print("cost")
-        print(cost)
-        print("\n")
+        # print("prediction")
+        # print(compliancePrediction)
+        # print("cost")
+        # print(cost)
+        # print("\n")
+        print(f"Epoch: {epoch} \t Cost: {cost_epoch}")
 
 print(model(indicator[:batches*batchsize]))
 
-print("ground truth")
-print(compliance[:10])
+
 
 #print("transformed prediction")
 #compliancePrediction_ = compliancePrediction*std + mu
@@ -127,16 +137,18 @@ print(compliance[:10])
 
 
 
-#import matplotlib.pyplot as plt
-#
-#for i in range(2):
-#    fig, ax = plt.subplots()
-#    ax.imshow(indicator[i,0])
-#    plt.show()
+# import matplotlib.pyplot as plt
+# #
+# for i in range(2):
+#     fig, ax = plt.subplots()
+#     ax.imshow(indicator[i,0])
+#     plt.show()
 
 
-
-
+fig, ax = plt.subplots()
+ax.plot(np.arange(epochs), cost_history)
+plt.xlabel("Epochs")
+plt.ylabel("Cost")
 
 
 
