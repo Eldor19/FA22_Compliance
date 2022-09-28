@@ -54,14 +54,14 @@ class NN(torch.nn.Module):
         self.conv3 = torch.nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
         self.conv4 = torch.nn.Conv2d(64, 16, kernel_size=3, stride=1, padding=1)
         
-#        self.conv5 = torch.nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1)
-#        self.conv6 = torch.nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
-#        
-#        self.conv7 = torch.nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1)
-#        self.conv8 = torch.nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
-#        
-#        self.conv9 = torch.nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
-#        self.conv10 = torch.nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
+        # self.conv5 = torch.nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1)
+        # self.conv6 = torch.nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+        
+        # self.conv7 = torch.nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1)
+        # self.conv8 = torch.nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
+        
+        # self.conv9 = torch.nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
+        # self.conv10 = torch.nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
         
         self.linear1 = torch.nn.Linear(2304, 512)
         self.linear2 = torch.nn.Linear(512, 1)
@@ -81,17 +81,17 @@ class NN(torch.nn.Module):
 #                ax[i, k].imshow(x[i,k].detach())
 #                plt.show()
 #        
-#        x = torch.nn.ReLU()(self.conv5(x))
-#        x = torch.nn.ReLU()(self.conv6(x))
-#        x = self.pool(x)
-#
-#        x = torch.nn.ReLU()(self.conv7(x))
-#        x = torch.nn.ReLU()(self.conv8(x))
-#        x = self.pool(x)
-#        
-#        x = torch.nn.ReLU()(self.conv9(x))
-#        x = torch.nn.ReLU()(self.conv10(x))
-#        x = self.pool(x)
+        # x = torch.nn.ReLU()(self.conv5(x))
+        # x = torch.nn.ReLU()(self.conv6(x))
+        # x = self.pool(x)
+
+        # x = torch.nn.ReLU()(self.conv7(x))
+        # x = torch.nn.ReLU()(self.conv8(x))
+        # x = self.pool(x)
+        
+        # x = torch.nn.ReLU()(self.conv9(x))
+        # x = torch.nn.ReLU()(self.conv10(x))
+        # x = self.pool(x)
 
         x = x.reshape((-1, 2304))
         x = torch.nn.LeakyReLU()(self.linear1(x))
@@ -109,7 +109,7 @@ epochs = 200
 clip = 2
 #batches = 10
 batchsize = 1
-index_split = 150
+index_split = 180
 
 np.random.seed(5)
 shuffleIndex = np.linspace(0,len(compliance)-1,len(compliance), dtype=int)
@@ -135,7 +135,6 @@ cost_test_batches = np.zeros((compliance.size()[0]-index_split))
 for epoch in range(epochs):
     i=0
     for indicator_i, compliance_i in train_dataloader:
-        # device siwthing skipped as its not working on my laptop
         compliancePrediction = model(indicator_i)
         cost = torch.mean((compliancePrediction - compliance_i)**2)
         
@@ -152,10 +151,8 @@ for epoch in range(epochs):
         cost_test = torch.mean((compliancePrediction - compliance_i)**2)
         
         
-        optimizer.zero_grad()
-        cost_test.backward()
-        optimizer.step()
-        cost_test_batches[i] = cost.cpu().detach().numpy()
+        
+        cost_test_batches[i] = cost_test.cpu().detach().numpy()
         i+=1
         
     
@@ -185,10 +182,10 @@ for epoch in range(epochs):
         # print("\n")
         print(f"Epoch: {epoch} \t Cost: {cost_epoch} \t test_Cost: {cost_test_epoch}")
 
-print("Example predictions")
-print(reverse_scaling(model(indicator[:batches*batchsize]), comp_max))
-print("Ground truths")
-print(reverse_scaling(compliance[:batches*batchsize], comp_max))
+# print("Example predictions")
+# print(reverse_scaling(model(indicator[:batches*batchsize]), comp_max))
+# print("Ground truths")
+# print(reverse_scaling(compliance[:batches*batchsize], comp_max))
 
 
 
@@ -211,7 +208,7 @@ print(reverse_scaling(compliance[:batches*batchsize], comp_max))
 #     fig, ax = plt.subplots()
 #     ax.imshow(indicator[i,0])
 #     plt.show()
-
+#%% Plotting
 
 fig, ax = plt.subplots()
 ax.plot(np.arange(epochs), cost_history, label="Training loss")
@@ -221,7 +218,7 @@ plt.yscale("log")
 plt.xlabel("Epochs")
 plt.ylabel("Cost")
 plt.grid(True)
-plt.label
+plt.legend()
 
 
 
